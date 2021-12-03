@@ -13,7 +13,8 @@ def generate_map(cols, bomb_quant):
             rand1, rand2 = np.random.randint(cols), np.random.randint(cols)
             # print(rand1, rand2)
             if empty_map[rand1, rand2] == "*":
-                print("bomb already placed here")
+                # bomb already placed here
+                pass
             else:
                 empty_map[rand1, rand2] = "*"
                 bomb_placed = True
@@ -28,9 +29,7 @@ def generate_map(cols, bomb_quant):
             if bomb_map[a, b] == "*":
                 continue
 
-            c_pos = get_coords_position(a, b)
-            neighbours = get_neighbours(a, b, c_pos)
-            print(c_pos, neighbours)
+            neighbours = get_neighbours(a, b, get_coords_position(a, b))
             bomb_count = 0
             for pair in neighbours:
                 # print(bomb_map[pair])
@@ -55,8 +54,8 @@ def prompt() -> (int, int):
     print("   0,  1,  2,  3,  4,  5,  6,  7")
     print(revealed_map)
 
-    x = int(input("choose the col "))
-    y = int(input("choose the row "))
+    x = int(input("Choose the col "))
+    y = int(input("Choose the row "))
 
     if x >= col or y >= col:
         print("Out of bounds")
@@ -78,7 +77,7 @@ def play(map, r_map, x, y):
         map = generate_map(cols=col, bomb_quant=int(col ** 2 / 5))
 
     if map[x, y] == "*":
-        print("ya lost")
+        print("You lost :(")
         return False
 
     r_map[x, y] = map[x, y]
@@ -176,7 +175,7 @@ def reveal(r_map, map, x, y):
 if __name__ == '__main__':
     col = 8
     map = generate_map(cols=col, bomb_quant=int(col ** 2 / 5))
-    print(map)
+    # print(map)
     revealed_map = gen_hidden_map(col)
     x, y = prompt()
 
