@@ -1,3 +1,4 @@
+from termcolor import colored
 import numpy as np
 
 HEIGHT = 8
@@ -51,39 +52,55 @@ def gen_hidden_map(cols):
 
 
 def prompt() -> (int, int):
-    print("   0,  1,  2,  3,  4,  5,  6,  7")
-    print(revealed_map)
+    # print("   0,  1,  2,  3,  4,  5,  6,  7")
+    # print(revealed_map)
+    print_map(revealed_map)
 
-    x = int(input("Choose the col "))
-    y = int(input("Choose the row "))
+    answer = input("[example bomb 3 2] Your move: ").split(" ")
+    option, x, y = answer[0], int(answer[1]), int(answer[2])
+    print(option)
+
+    if option != "bomb" and option != "show":
+        print("That option doesn't exist, use 'bomb' or 'show'")
+        return prompt()
 
     if x >= col or y >= col:
         print("Out of bounds")
         return prompt()
-    return x, y
+
+    return option, x, y
 
 
 def first_move(r_map):
     # iterates rows
     for cells in r_map:
         # if any cell isnt a bomb (has been revealed)
-        if not any(cells) == "#":
+        # TODO this isnt working
+        # if any(cells) == "0":
+        if "0" in cells:
             return False
     return True
 
 
-def play(map, r_map, x, y):
+def play(map, r_map, x, y, choice):
+    # generates new map until the user hits a 0
     while map[x, y] != "0" and first_move(r_map):
         map = generate_map(cols=col, bomb_quant=int(col ** 2 / 5))
 
     if map[x, y] == "*":
-        print("You lost :(")
-        return False
+        if choice == "bomb":
+            # TODO : mark as bomb
+            r_map[x, y] = "*"
+            return True
+        else:
+            print("You lost :(")
+            return False
 
-    r_map[x, y] = map[x, y]
+    if choice == "show":
+        r_map[x, y] = map[x, y]
 
-    if r_map[x, y] == "0":
-        r_map = reveal(r_map, map, x, y)
+        if r_map[x, y] == "0":
+            r_map = reveal(r_map, map, x, y)
 
     return True
 
@@ -172,14 +189,25 @@ def reveal(r_map, map, x, y):
     return r_map
 
 
+def print_map(m):
+    # [print(x) for x in range(m)]
+
+    print("   0   1   2   3   4   5   6   7")
+    i = 0
+    for n in m:
+        print(str(i) + "  " + " | ".join([colored(x, "red") if x == "#" else colored(x, "blue") for x in n]))
+        i += 1
+    return
+
+
 if __name__ == '__main__':
     col = 8
     map = generate_map(cols=col, bomb_quant=int(col ** 2 / 5))
     # print(map)
     revealed_map = gen_hidden_map(col)
-    x, y = prompt()
+    choice, x, y = prompt()
 
-    while play(map, revealed_map, x, y):
-        x, y = prompt()
+    while play(map, revealed_map, x, y, choice):
+        choice, x, y = prompt()
 
     print(map)
